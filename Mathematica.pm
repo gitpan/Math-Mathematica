@@ -5,15 +5,19 @@
 # Author          : Ulrich Pfeifer
 # Created On      : Thu Nov 23 09:40:46 1995
 # Last Modified By: Ulrich Pfeifer
-# Last Modified On: Fri Nov 24 10:04:48 1995
+# Last Modified On: Fri Nov 24 17:12:21 1995
 # Language        : Perl
-# Update Count    : 24
+# Update Count    : 50
 # Status          : Unknown, Use with caution!
 # 
 # (C) Copyright 1995, Universität Dortmund, all rights reserved.
 # 
 # $Locker: pfeifer $
 # $Log: Mathematica.pm,v $
+# Revision 1.0.1.4  1995/11/24  16:17:11  pfeifer
+# patch5: PutCall now has a better idea what Strings, Symbols and
+# patch5: Numbers are.
+#
 # Revision 1.0.1.3  1995/11/24  10:26:03  pfeifer
 # patch4: Convenience functions.
 #
@@ -200,6 +204,7 @@ sub Call {
     my $self = shift;
 
     $self->PutCall(@_);
+    $self->EndPacket();
     return($self->Result);
 }
 
@@ -209,23 +214,39 @@ sub PutCall {
 
     $link->PutFunction($name, $#args+1); # must be a string!
     for (@args) {               # this is a hack! Should be in xsub
-        if (ref($_) eq 'ARRAY') {
-            &PutCall($link, @{$_});
-        } elsif (/[a-z]/i) {    # assume string
-            $link->PutString($_);
-        } else {                # assume double 
-            $link->PutDouble($_);
+        if (ref($_)) {
+            if (ref($_) eq 'ARRAY') {
+                &PutCall($link, @{$_});
+            } else {
+                croak "Not an array reference $_";
+            }
+        } elsif (/^([\"\'])(.*)\1$/i) {   # assume string
+            print "PutString($2)\n" if $debug;
+            $link->PutString($2);
+        } elsif (/^[^\d\.+-]/i) {         # assume symbol
+            print "PutSymbol($_)\n" if $debug;
+            $link->PutSymbol($_);
+        } else {
+            print "PutDouble($_)\n" if $debug;
+            $link->PutDouble($_);         # assume numeric value
         }
     }
 }
 
-sub GetResult {
+sub Result {
+    my $link = shift;
+
+    $link->ResultGet;              # get the result packet or die
+    $link->ResultParse;
+}
+
+sub ResultGet {
     my $link = shift;
     my $type;
 
     while(1) {
         $type = $link->NextPacket();
-        print "GetResult: $type\n" if $debug;
+        print "ResultGet: $type\n" if $debug;
         last if $type == &constant('RETURNPKT',0);
         if ($type == &constant('MLTKERROR',0)) {
             croak sprintf("Got error packet %d %s\n", 
@@ -240,11 +261,10 @@ sub GetResult {
     }
 }
 
-sub Result {
+sub ResultParse {
     my $link = shift;
-    my ($type, $result);
+    my ($type, $result, $name, $args, @result);
 
-    $link->GetResult();              # get the result packet or die
     $type = $link->GetType();
 
     print "Result: $type\n" if $debug;
@@ -263,6 +283,21 @@ sub Result {
     } elsif ($link->GetType() == &constant('MLTKSTR',0)) {
         $result = $link->GetString();
         print "string=$result\n" if $debug;
+    } elsif ($link->GetType() == &constant('MLTKFUNC',0)) {
+        ($name, $args) = $link->GetFunction();
+        print "($name, $args)\n" if $debug;
+        for (1 .. $args) {
+            push(@result, $link->ResultParse);
+        }
+        $result = join (',', @result);
+        print "function($args)=$name\[$result\]\n" if $debug;
+        if ($name eq 'List') {
+            return(@result);
+        } elsif ($name eq 'Rational') {
+            return($result[0]/$result[1]);
+        } else {
+            return ($name, @result);
+        }
     } else {
         carp "Error -- ouput is not a known package type: $type\n";
     }

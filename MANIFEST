@@ -8,3 +8,5 @@ patchlevel.h
 t/basic.t
 typemap
 ChangeLog                    
+t/compl.t                    More complex tests (return arrays).
+start-server                 Script to start math as server on a designated host.

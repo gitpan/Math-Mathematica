@@ -4,15 +4,18 @@
  * Author          : Ulrich Pfeifer
  * Created On      : Thu Nov 23 09:32:00 1995
  * Last Modified By: Ulrich Pfeifer
- * Last Modified On: Fri Nov 24 10:24:14 1995
+ * Last Modified On: Fri Nov 24 16:13:07 1995
  * Language        : C
- * Update Count    : 45
+ * Update Count    : 68
  * Status          : Unknown, Use with caution!
  * 
  * (C) Copyright 1995, Universität Dortmund, all rights reserved.
  * 
  * $Locker: pfeifer $
  * $Log: Mathematica.xs,v $
+# Revision 1.0.1.4  1995/11/24  16:18:14  pfeifer
+# patch5: Added MLGetRealList() and MLPutRealList().
+#
 # Revision 1.0.1.3  1995/11/24  10:26:32  pfeifer
 # patch4: Bugfixes ;-)
 #
@@ -1104,6 +1107,76 @@ CODE:
     }
 }
         
+
+void
+MLGetFunction(mlink) 
+	MLINK	mlink
+PPCODE:
+{
+	char*	name;
+	long	length;
+
+        if (MLGetFunction(mlink, &name, &length)) {
+            if (GIMME == G_ARRAY) {
+                long i;
+                
+                EXTEND(sp, 2);
+                PUSHs (sv_2mortal (newSVpv (name,0)));
+                PUSHs (sv_2mortal (newSViv (length)));
+            } else {
+                PUSHs (sv_2mortal (newSViv(length)));
+            }
+            MLDisownSymbol(mlink, name);
+        } else {
+            PUSHs(&sv_undef);
+        }
+}
+
+void
+MLGetRealList(mlink) 
+	MLINK	mlink
+PPCODE:
+{
+	double*	array;
+	long	length;
+
+        if (MLGetRealList(mlink, &array, &length)) {
+            if (GIMME == G_ARRAY) {
+                long i;
+                
+                EXTEND(sp, length);
+                for(i=0;i<length;i++) {
+                    PUSHs (sv_2mortal (newSVnv (array[i])));
+                }
+            } else {
+                PUSHs (sv_2mortal (newSViv(length)));
+            }
+            MLDisownRealList(mlink, array, length);
+        } else {
+            PUSHs(&sv_undef);
+        }
+}
+
+int
+MLPutRealList(mlink, ...)
+	MLINK	mlink
+CODE:
+{
+    double *vector = NULL;
+    long   count   = items-1;
+
+    if (count) {
+        int i;
+
+        vector = (double *)malloc(count * sizeof(double));
+        for (i=1;i<items;i++) {
+            vector[i] = (double)SvNV(ST(i));
+        }
+    }
+    ST(0) = sv_newmortal();
+    RETVAL = MLPutRealList(mlink, vector, count);
+    if (vector) free(vector);
+}
 
 int
 MLPutNext(mlink, integer1)

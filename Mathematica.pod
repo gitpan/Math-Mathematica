@@ -4,15 +4,18 @@
 ## Author          : Ulrich Pfeifer
 ## Created On      : Fri Nov 24 10:32:16 1995
 ## Last Modified By: Ulrich Pfeifer
-## Last Modified On: Fri Nov 24 11:24:09 1995
+## Last Modified On: Fri Nov 24 17:01:36 1995
 ## Language        : Pod
-## Update Count    : 8
+## Update Count    : 10
 ## Status          : Unknown, Use with caution!
 ## 
 ## (C) Copyright 1995, Universität Dortmund, all rights reserved.
 ## 
 ## $Locker: pfeifer $
 ## $Log: Mathematica.pod,v $
+## Revision 1.0.1.2  1995/11/24  16:17:39  pfeifer
+## patch5: Fixed documentation for Call();
+##
 ## Revision 1.0.1.1  1995/11/24  10:26:20  pfeifer
 ## patch4: Basic documentation.
 ##
@@ -103,17 +106,39 @@ Perl will do it for you.
 
 Takes a list of arguments. The first is assumed to be a Mathematica
 function name, the rest the arguments to pass to
-Mathematica. Arguments may be numbers, strings or array
-references. The latter is assumed to point to a argument list for
-another function call. Perhaps the following example helps to clarify
-this:
+Mathematica. depending on the argument different actions are
+performed:
 
-        $e = $link->Call('N', ['Exp',1], 20);
+=over 5
 
-Since C<Call> is written in Perl, there is no way to distinguish
-between C<"1234"> and C<1234>. So the functions guesses that you meant
-C<String> if the argument contained a letter. Perhaps someone will
-write C<Call> as xsub?
+=item 
+
+If the argument is enclosed in single or double quotes, C<PutString>
+is called.
+
+=item
+
+If the arguments starts not with a digit, a '+' or '-', or with a '.'
+it is assumed to be a symbol and C<PutSymbol> is called.
+
+=item
+
+If the argument is an array reference, C<Call> is recursively invoked
+with the referenced array as arguments.
+
+=item
+
+In all other cases C<PutDouble> is called.
+
+Perhaps the following examples helps to clarify this:
+
+        $link->Call('N', ['Exp',1], 20);
+
+        $link->Call('Needs', '"Statistics`ContinuousDistributions`"');
+
+        $link->Call('Table', 
+                       ['CDF', ['NormalDistribution', 0, 1], 'i'],
+                       ['List', 'i', 0, 1, 0.1]);
 
 =item C<Result>
 
@@ -131,8 +156,10 @@ an unknown case ;-(
 
 Doubless many.
 
+Not all MathLink functions are supported yet.
+
 The tests complain about acessing uninitialized values when testing
-the aruments for references:
+the arguments for references:
 
     if (ref($_) eq 'ARRAY') ...
 

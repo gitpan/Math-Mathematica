@@ -5,15 +5,18 @@
 # Author          : Ulrich Pfeifer
 # Created On      : Thu Nov 23 20:00:48 1995
 # Last Modified By: Ulrich Pfeifer
-# Last Modified On: Fri Nov 24 10:03:33 1995
+# Last Modified On: Fri Nov 24 15:42:30 1995
 # Language        : Perl
-# Update Count    : 34
+# Update Count    : 35
 # Status          : Unknown, Use with caution!
 # 
 # (C) Copyright 1995, Universität Dortmund, all rights reserved.
 # 
 # $Locker: pfeifer $
 # $Log: basic.t,v $
+# Revision 1.0.1.2  1995/11/24  16:18:33  pfeifer
+# patch5: Now passes strings quoted.
+#
 # Revision 1.0.1.1  1995/11/24  10:26:57  pfeifer
 # patch4: Former test.pl using convenience functions.
 #
@@ -76,7 +79,7 @@ print "$e\n";
 print (($e == 2.71828182845905)?"ok 4\n":"not ok 4\n");
 
 print "Lets's load a Package\n";
-$e = $link->Call('Needs', 'Statistics`ContinuousDistributions`'); 
+$e = $link->Call('Needs', '"Statistics`ContinuousDistributions`"'); 
 print "$e\n";
 print (($e eq 'Null')?"ok 5\n":"not ok 5\n");
 

@@ -1,3 +1,21 @@
+Fri Nov 24 17:21:30 MET 1995   Ulrich Pfeifer <pfeifer@ls6.informatik.uni-dortmund.de>
+
+. Description:
+
+Mathematica.pm
+	PutCall now has a better idea what Strings, Symbols and
+	Numbers are.
+
+Mathematica.pod
+	Fixed documentation for Call();
+
+Mathematica.xs
+	Added MLGetRealList() and MLPutRealList().
+
+tests
+	Now passes strings quoted.
+
+
 Fri Nov 24 11:28:46 MET 1995   Ulrich Pfeifer <pfeifer@ls6.informatik.uni-dortmund.de>
 
 . Description:

@@ -5,9 +5,9 @@
 # Author          : Ulrich Pfeifer
 # Created On      : Thu Nov 23 20:04:51 1995
 # Last Modified By: Ulrich Pfeifer
-# Last Modified On: Fri Nov 24 11:12:30 1995
+# Last Modified On: Fri Nov 24 17:16:17 1995
 # Language        : Perl
-# Update Count    : 11
+# Update Count    : 13
 # Status          : Unknown, Use with caution!
 # 
 # (C) Copyright 1995, Universität Dortmund, all rights reserved.
