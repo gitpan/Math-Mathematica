@@ -1,0 +1,43 @@
+Fri Nov 24 11:28:46 MET 1995   Ulrich Pfeifer <pfeifer@ls6.informatik.uni-dortmund.de>
+
+. Description:
+
+MANIFEST
+	Added t/basic.t. Removed test.pl. More tests.
+Makefile.PL
+	Support for Test:Harness.
+Mathematica.pm
+	Convenience functions. 
+Mathematica.pod
+	Basic documentation.
+Mathematica.xs
+	Bugfixes ;-)
+t/basic.t
+	Former test.pl using convenience functions.
+
+Thu Nov 23 16:21:48 MET 1995   Ulrich Pfeifer <pfeifer@ls6.informatik.uni-dortmund.de>
+
+. Description:
+
+	Added ChangeLog.
+
+	Automatic version computation.
+
+	Made OO-Interface.
+
+	Removed all Functions. Added some by hand with more perlish
+	interface.
+
+	Uses oo_Interface now.
+
+	Removed trash. Only MLINK is now supported.
+
+Thu Nov 23 09:25:20 MET 1995   Ulrich Pfeifer <pfeifer@ls6.informatik.uni-dortmund.de>
+
+. Description:
+
+	Thu Nov 23 09:21:19 MET 1995   Ulrich Pfeifer <pfeifer@ls6.informatik.uni-dortmund.de>
+
+. Description:
+
+	

@@ -1,0 +1,151 @@
+##                         -*- Mode: Indented-Text -*- 
+## Mathematica.pod -- 
+## ITIID           : $ITI$ $Header $__Header$
+## Author          : Ulrich Pfeifer
+## Created On      : Fri Nov 24 10:32:16 1995
+## Last Modified By: Ulrich Pfeifer
+## Last Modified On: Fri Nov 24 11:24:09 1995
+## Language        : Pod
+## Update Count    : 8
+## Status          : Unknown, Use with caution!
+## 
+## (C) Copyright 1995, Universität Dortmund, all rights reserved.
+## 
+## $Locker: pfeifer $
+## $Log: Mathematica.pod,v $
+## Revision 1.0.1.1  1995/11/24  10:26:20  pfeifer
+## patch4: Basic documentation.
+##
+## 
+
+=head1 NAME
+
+Math::Mathematica - Communicate to Mathematica via B<MathLink>
+
+=head1 SYNOPSIS
+
+C<use Math::Mathematica;>
+
+C<$link = new Math::Mathematica(> I<MathLink args> C<)>
+
+=head1 DESCRIPTION
+
+This is a very basic interface to the B<MathLink> library of
+Mathematica. B<Mathematica> is registered trademark of Wolfram
+Research, Inc. I use version 2.2. There are tree groups of functions.
+
+=head2 As-Is functions
+
+Some functions have the same interface as in MathLink itself. For
+example
+
+        int MLPutSymbol(MLINK, char*);
+
+Can be called from Perl like:
+
+        Math::Mathematica::PutSymbol($link,"FooBar");
+
+I recommend to use the OO-Syntax:
+
+        $link->PutSymbol("FooBar");
+
+=head2 More perlish functions
+
+There are a couple of functions in MathLink which return a error code
+and deliver results via reference parameters.
+
+    
+        int MLGetSymbol(MLINK, char**);
+
+the Perl versions of these functions return the result as result of
+the function. If the return code of the MathLink function indicates an
+error, C<undef> is returned instead. You can use C<defined> to
+disambiguate C<undef> and 0 for functions returning numeric values.
+
+        if (defined($result = $link->GetSymbol)) {
+           ....
+        }
+
+=head2 Convenience functions
+
+In C<Mathematica.pm> there are few functions to support OO-style
+syntax.
+
+=over 5
+
+=item C<new>
+
+Is an alias for C<open>. It takes a list of named arguments as the
+C<math> of Mathematica program does. To use launch mode use e.g.:
+
+    $link = new Math::Mathematica('-linkname', "math  -mathlink", 
+                                  '-linkmode', 'launch');
+
+If you want to connect over TCP enter the following line in a shell to
+start the server
+    
+    math -linkmode listen -linkprotocol TCP -linkname 3000 -mathlink
+
+and use this in your script to connect:
+
+    $link = new Math::Mathematica('-linkname', '3000', 
+                                  '-linkmode', 'Connect',
+                                  '-linkhost', 'schroeder',
+                                  '-linkprotocol', 'TCP',
+                                  );
+
+=item C<DESTROY>
+
+Is an alias For C<Close>. So you do not need to close a connection -
+Perl will do it for you.
+
+=item C<Call>
+
+Takes a list of arguments. The first is assumed to be a Mathematica
+function name, the rest the arguments to pass to
+Mathematica. Arguments may be numbers, strings or array
+references. The latter is assumed to point to a argument list for
+another function call. Perhaps the following example helps to clarify
+this:
+
+        $e = $link->Call('N', ['Exp',1], 20);
+
+Since C<Call> is written in Perl, there is no way to distinguish
+between C<"1234"> and C<1234>. So the functions guesses that you meant
+C<String> if the argument contained a letter. Perhaps someone will
+write C<Call> as xsub?
+
+=item C<Result>
+
+Looks for a result from Mathematica and returns it. Caution this
+function just handles the most frequent cases. It dies if it runs in
+an unknown case ;-(
+
+        $link->PutSymbol('$Version');
+        $link->EndPacket();
+        $version = $link->Result();
+
+=back
+
+=head1 BUGS
+
+Doubless many.
+
+The tests complain about acessing uninitialized values when testing
+the aruments for references:
+
+    if (ref($_) eq 'ARRAY') ...
+
+This seems to be a bug of my perl version rather than one of
+C<PutCall>.
+
+=head1 Contribute
+
+That is it for now. Let me know if somebody uses this (1) and is
+willing to test (2) or to contribute (3). The latter is preferred ;-)
+
+=head1 AUTHOR
+
+Ulrich Pfeifer F<E<lt>pfeifer@ls6.informatik.uni-dortmund.deE<gt>>
+
+

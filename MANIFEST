@@ -1,0 +1,10 @@
+MANIFEST
+Makefile.PL
+Mathematica.pm
+Mathematica.pod
+Mathematica.xs
+mh2xs
+patchlevel.h
+t/basic.t
+typemap
+ChangeLog                    
